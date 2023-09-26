@@ -1,6 +1,9 @@
 package com.example.interfacedatabase
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -39,15 +42,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.interfacedatabase.db.DBHandler
 import com.example.interfacedatabase.ui.theme.InterfaceDatabaseTheme
 import com.example.interfacedatabase.ui.theme.PurpleGrey40
+
 
 
 class MainActivity : ComponentActivity() {
@@ -55,6 +62,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             InterfaceDatabaseTheme {
+                App()
             }
         }
     }
@@ -77,7 +85,7 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                     //CardSample()
-                    CamposTexto()
+                    CamposTexto(LocalContext.current)
                     //FloatingActionButtonSample()
                 }
                 Column (
@@ -274,32 +282,12 @@ class MainActivity : ComponentActivity() {
             Icon(Icons.Filled.Settings, "Localized description")
         }
     }
-    // original do projeto
-    @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-    }
-
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview() {
-        InterfaceDatabaseTheme {
-            Greeting("Android")
-
-        }
-    }
-
-
-
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
-fun CamposTexto() {
+fun CamposTexto(
+    context: Context
+) {
 
     val courseName = remember { mutableStateOf(TextFieldValue()) }
     val courseDuration = remember { mutableStateOf(TextFieldValue()) }
@@ -354,19 +342,32 @@ fun CamposTexto() {
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        Button(
-            onClick = { /* Implementar ação de cadastro aqui */ }
 
+        var dbHandler: DBHandler = DBHandler(context)
+
+        Button(
+            onClick = {
+                dbHandler.addNewCourse(
+                    courseName.value.text,
+                    courseDuration.value.text,
+                    courseDescription.value.text,
+                    courseTracks.value.text
+                )
+                Toast.makeText(context, "Course Added to Database", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier
+                .padding(end = 8.dp)
         ) {
             Text(text = "Add Course to Database")
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Button(
-            onClick = { /* Implementar ação de cancelar aqui */ }
-         ) {
-            Text(text = " Read Course to Database")
+        //botão para read
+        Button(onClick = {
+            val i = Intent(context, ViewCourses::class.java)
+            context.startActivity(i)
+        }) {
+            // on below line adding a text for our button.
+            Text(text = "Read Courses to Database", color = Color.White)
         }
     }
+
 }
